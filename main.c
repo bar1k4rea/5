@@ -55,7 +55,7 @@ int main() {
                 showGraph(graph, amt);
                 break;
             case 11:
-                timingFunction(graph);
+                timingFunction(graph, amt);
                 break;
             default:
                 printf("ERROR! There is no such command.\n");

@@ -144,9 +144,9 @@ void deleteEdge(Vertex *graph, int amt) {
     int name1, name2, ind1, ind2, i, signal = 0;
     Vertex *head;
 
-    printf("Enter the first graph: ");
+    printf("Enter the first vertex ->");
     getInt(&name1);
-    printf("Enter the second graph: ");
+    printf("Enter the second vertex ->");
     getInt(&name2);
     for (i = 0; i < amt; i++) {
         if (name1 == graph[i].name) {
@@ -215,6 +215,154 @@ void DeapthFirstSearch(Vertex *graph, int amt, int ind1, int ind2) {
     return;
 }
 
+int findIndex(Vertex* graph, int amt, int name) {
+    int i;
+
+    for (i = 0; i < amt; i++) {
+        if (name == graph[i].name)
+            return i;
+    }
+}
+
+// 6. Алгоритм Дейкстры.
+void Dijkstra(Vertex *graph, int amt) {
+    int name1, name2, ind1, ind2, i, distance, signal = 0;
+
+    printf("Enter the first vertex ->");
+    getInt(&name1);
+    printf("Enter the second vertex ->");
+    getInt(&name2);
+    for (i = 0; i < amt; i++) {
+        if (name1 == graph[i].name) {
+            ind1 = i;
+            signal += 1;
+        }
+        if (name2 == graph[i].name) {
+            ind2 = i;
+            signal += 1;
+        }
+    }
+    if (signal != 2) {
+        printf("ERROR! The entered vertex(es) isn't (aren't) in the graph.\n");
+        return;
+    }
+    mainDijkstra(graph, amt, ind1, ind2);
+    return;
+}
+
+void mainDijkstra(Vertex *graph, int amt, int ind1, int ind2) {
+    int i, j, indCur, indAdj, min, name, counter = amt;
+    int vis[amt], dist[amt], pred[amt], way[amt];
+    Vertex *ptr;
+
+    for (i = 0; i < amt; i++) {
+        vis[i] = 0;
+        pred[i] = -1;
+        dist[i] = 2000000000;
+        way[i] = -1;
+    }
+    dist[ind1] = 0;
+    pred[ind1] = graph[ind1].name;
+    while (counter != 0) {
+        min = 2000000000;
+        for (i = 0; i < amt; i++)
+            if (vis[i] == 0 && min > dist[i]) {
+                min = dist[i];
+                indCur = i;
+            }
+        ptr = graph[indCur].next;
+        while (ptr) {
+            indAdj = findIndex(graph, amt, ptr->name);
+            if (dist[indAdj] > dist[indCur] + ptr->weight) {
+                dist[indAdj] = dist[indCur] + ptr->weight;
+                pred[indAdj] = graph[indCur].name;
+            }
+            ptr = ptr->next;
+        }
+        vis[indCur] = 1;
+        counter -= 1;
+    }
+    if (dist[ind2] == 2000000000)
+        dist[ind2] = 0;
+    printf("The minimum distance from #%d vertex to #%d is %d.\n", graph[ind1].name, graph[ind2].name, dist[ind2]);
+
+    if (dist[ind2] == 0)
+        return;
+    else {
+        i = 0;
+        while (graph[ind1].name != ind2) {
+            way[i] = graph[ind2].name;
+            ind2 = pred[ind2];
+            i++;
+        }
+    }
+    way[i] = graph[ind1].name;
+    printf("Way ->");
+    for (j = i; j > -1; j--)
+        printf(" %d", way[j]);
+    printf(".\n");
+}
+
+// 7. Топологическая сортировка.
+void topologicalSorting(Vertex *graph, int amt) {
+    int i, j, signal = 0;
+    int colors[amt];
+    Vertex *head = NULL, *cur;
+
+    for (i = 0; i < amt; i++)
+        colors[i] = 0;
+    for (i = 0; i < amt; i++)
+        if (colors[i] == 0)
+            head = checkTopSort(graph, amt, colors, i, head, &signal);
+    if (signal)
+        printf("ERROR! There is a cycle in the graph.\n");
+    else {
+        while (head) {
+            printf("%d ", head->name);
+            head = head->next;
+        }
+        printf("\n");
+    }
+    while (head) {
+        cur = head->next;
+        free(head);
+        head = cur;
+    }
+    return;
+}
+
+Vertex* checkTopSort(Vertex *graph, int amt, int *colors, int ind1, Vertex *head, int *signal) {
+    int name, new;
+    Vertex *ptr, *cur, *tmp;
+
+    colors[ind1] = 1;
+    ptr = &graph[ind1];
+    if (ptr->next) {
+        ptr = ptr->next;
+        new = findIndex(graph, amt, ptr->name);
+        if (colors[new] == 1)
+            *signal = 1;
+        while (ptr->next) {
+            new = findIndex(graph, amt, ptr->name);
+            if (colors[new] == 0)
+                head = checkTopSort(graph, amt, colors, new, head, &(*signal));
+            ptr = ptr->next;
+        }
+        new = findIndex(graph, amt, ptr->name);
+        if (colors[new] == 0)
+            head = checkTopSort(graph, amt, colors, new, head, &(*signal));
+    }
+    colors[ind1] = 2;
+    tmp = (Vertex*)calloc(1, sizeof(Vertex));
+    tmp->x = graph[ind1].x;
+    tmp->y = graph[ind1].y;
+    tmp->name = graph[ind1].name;
+    cur = head;
+    head = tmp;
+    head->next = cur;
+    return head;
+}
+
 void checkDFS(Vertex *graph, int amt, int *colors, int ind1) {
     int name, new;
     Vertex *ptr;
@@ -234,27 +382,6 @@ void checkDFS(Vertex *graph, int amt, int *colors, int ind1) {
             checkDFS(graph, amt, colors, new);
     }
     colors[ind1] = 2;
-    return;
-}
-
-int findIndex(Vertex* graph, int amt, int name) {
-    int i;
-
-    for (i = 0; i < amt; i++) {
-        if (name == graph[i].name)
-            return i;
-    }
-}
-
-// 6. Алгоритм Дейкстры.
-void Dijkstra(Vertex *graph, int amt) {
-    printf("6\n");
-    return;
-}
-
-// 7. Топологическая сортировка.
-void topologicalSorting(Vertex *graph, int amt) {
-    printf("7\n");
     return;
 }
 
@@ -297,7 +424,7 @@ void createGraph(Vertex *graph) {
         head = graph[i].next;
         for (j = 0; j < amt; j++) {
             coin = rand() % 2;
-            if (coin) {
+            if (coin && i != j) {
                 counter++;
                 head = graph[i].next;
                 cur = (Vertex*)calloc(1, sizeof(Vertex));
@@ -395,8 +522,18 @@ void showGraph(Vertex *graph, int amt) {
 }
 
 // 11. Таймировние и профилирование.
-void timingFunction(Vertex *graph) {
-    printf("11\n");
+void timingFunction(Vertex *graph, int amt) {
+    int i, j;
+    clock_t begin, end;
+
+    begin = clock();
+    for (i = 0; i < amt; i++) {
+        for (j = 0; j < amt; j++) {
+            DeapthFirstSearch(graph, amt, i, j);
+        }
+    }
+    end = clock();
+    printf("Time of DFS ->%f\n", (double)(end - begin) / CLOCKS_PER_SEC);
     return;
 }
 
@@ -445,4 +582,3 @@ void deleteDefiniteEdge(Vertex *graph, int amt, int ind1, int name2) {
     }
     return;
 }
-

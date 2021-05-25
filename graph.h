@@ -29,7 +29,7 @@ void topologicalSorting(Vertex *graph, int amt);
 void createGraph(Vertex *graph);
 Vertex* loadingGraph(Vertex *graph, int *amt);
 void showGraph(Vertex *graph, int amt);
-void timingFunction(Vertex *graph);
+void timingFunction(Vertex *graph, int amt);
 
 // Дополнительные функции.
 int getInt(int *integer);
@@ -39,6 +39,8 @@ void DeapthFirstSearch(Vertex *graph, int amt, int ind1, int ind2);
 int findIndex(Vertex* graph, int amt, int name);
 void checkDFS(Vertex *graph, int amt, int *colors, int ind1);
 int findIndex(Vertex* graph, int amt, int name);
+Vertex* checkTopSort(Vertex *graph, int amt, int *colors, int ind1, Vertex *head, int *signal);
+void mainDijkstra(Vertex *graph, int amt, int ind1, int ind2);
 
 #endif //GRAPH_H
 
