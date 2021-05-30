@@ -305,33 +305,29 @@ void mainDijkstra(Vertex *graph, int amt, int ind1, int ind2) {
 
 // 7. Топологическая сортировка.
 void topologicalSorting(Vertex *graph, int amt) {
-    int i, j, signal = 0;
+    int i, j, signal = 0, counter = 0;
     int colors[amt];
+    int sort[amt];
     Vertex *head = NULL, *cur;
 
-    for (i = 0; i < amt; i++)
+    for (i = 0; i < amt; i++) {
         colors[i] = 0;
+        sort[i] = -1;
+    }
     for (i = 0; i < amt; i++)
         if (colors[i] == 0)
-            head = checkTopSort(graph, amt, colors, i, head, &signal);
+            checkTopSort(graph, amt, colors, i, sort, &signal, &counter);
     if (signal)
         printf("ERROR! There is a cycle in the graph.\n");
     else {
-        while (head) {
-            printf("%d ", head->name);
-            head = head->next;
-        }
+        for (i = amt - 1; i > -1; i--)
+            printf("%d ", sort[i]);
         printf("\n");
-    }
-    while (head) {
-        cur = head->next;
-        free(head);
-        head = cur;
     }
     return;
 }
 
-Vertex* checkTopSort(Vertex *graph, int amt, int *colors, int ind1, Vertex *head, int *signal) {
+void checkTopSort(Vertex *graph, int amt, int *colors, int ind1, int *sort, int *signal, int *counter) {
     int name, new;
     Vertex *ptr, *cur, *tmp;
 
@@ -345,22 +341,17 @@ Vertex* checkTopSort(Vertex *graph, int amt, int *colors, int ind1, Vertex *head
         while (ptr->next) {
             new = findIndex(graph, amt, ptr->name);
             if (colors[new] == 0)
-                head = checkTopSort(graph, amt, colors, new, head, &(*signal));
+                checkTopSort(graph, amt, colors, new, sort, &(*signal), &(*counter));
             ptr = ptr->next;
         }
         new = findIndex(graph, amt, ptr->name);
         if (colors[new] == 0)
-            head = checkTopSort(graph, amt, colors, new, head, &(*signal));
+            checkTopSort(graph, amt, colors, new, sort, &(*signal), &(*counter));
     }
     colors[ind1] = 2;
-    tmp = (Vertex*)calloc(1, sizeof(Vertex));
-    tmp->x = graph[ind1].x;
-    tmp->y = graph[ind1].y;
-    tmp->name = graph[ind1].name;
-    cur = head;
-    head = tmp;
-    head->next = cur;
-    return head;
+    sort[*counter] = graph[ind1].name;
+    *counter += 1;
+    return;
 }
 
 void checkDFS(Vertex *graph, int amt, int *colors, int ind1) {

@@ -39,7 +39,7 @@ void DeapthFirstSearch(Vertex *graph, int amt, int ind1, int ind2);
 int findIndex(Vertex* graph, int amt, int name);
 void checkDFS(Vertex *graph, int amt, int *colors, int ind1);
 int findIndex(Vertex* graph, int amt, int name);
-Vertex* checkTopSort(Vertex *graph, int amt, int *colors, int ind1, Vertex *head, int *signal);
+void checkTopSort(Vertex *graph, int amt, int *colors, int ind1, int* sort, int *signal, int *counter);
 void mainDijkstra(Vertex *graph, int amt, int ind1, int ind2);
 
 #endif //GRAPH_H
